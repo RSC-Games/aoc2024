@@ -71,12 +71,12 @@ public class Day2 {
 
         for (int[] record : records) {
             if (recordIsSafe(record) || recordIsSafeProblemDampener(record)) {
-                System.out.println("safe record");
+                //System.out.println("safe record");
                 safeReports++;
             }
 
-            else
-                System.out.println("id unsafe record");
+            else {}
+                //System.out.println("id unsafe record");
         }
 
         System.out.println("Safe reports: " + safeReports);
@@ -85,13 +85,16 @@ public class Day2 {
     // Potentially unsafe record -- identify if the "Problem Dampener" can handle it
     // Could implement into the *recordIsSafe* logic but I'll do it separately.
     // It's basically the same code anyway.
-    // TODO: Incomplete! I have lost what little remains of my brain power.
     private static boolean recordIsSafeProblemDampener(int[] record) {
-        boolean unsafe = false;
         int direction = 0;
 
-        System.out.println(Arrays.toString(record));
+        //System.out.println("in array " + Arrays.toString(record));
         ArrayList<Integer> fixedList = new ArrayList<>();
+
+        // Stupid lazy copy of integers.
+        for (int i : record) {
+            fixedList.add(i);
+        }
 
         for (int i = 1; i < record.length - 1; i++) {
             int curSample = record[i];
@@ -108,17 +111,29 @@ public class Day2 {
             int forwardDelta = forwardSample - lastSample;
 
             boolean inRange = (signof(delta) == signof(direction) && Math.abs(delta) <= 3);
+            boolean wideInRange = (signof(forwardDelta) == signof(direction) && Math.abs(forwardDelta) <= 3);
 
             // Attempt to remove an entry, then evaluate it again.
 
             // Personal heuristics I found: in most cases as long as we're not on the edge,
             // we can only remove a direction reversal.
-            if (sampleDir != forwardSampleDir) {}
-            else
-                fixedList.add(curSample);
+
+            // Opposite directions can possibly be saved.
+            if (sampleDir != forwardSampleDir && wideInRange) {
+                // Skipped entry; cannot eliminate any more.
+                fixedList.remove(i);
+                break;
+            }
         }
 
-        return recordIsSafe(toPrimitiveIntArray(fixedList));
+        //System.out.println("identified array " + fixedList);
+        boolean isSafe = recordIsSafe(toPrimitiveIntArray(fixedList));
+        //System.out.println("is safe: " + isSafe);
+        if (!isSafe) {
+            System.out.println("in array " + Arrays.toString(record));
+            System.out.println("out array " + fixedList);
+        }
+        return isSafe;
     }
 
     private static int[] toPrimitiveIntArray(ArrayList<Integer> arr) {
